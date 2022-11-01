@@ -2,7 +2,6 @@ package person
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"strings"
 )
@@ -12,29 +11,36 @@ type Person struct {
 	Names []string `json:"Names"`
 }
 
+type Actresses struct {
+	ListOfActresses []Person `json:"Actresses"`
+}
+
 // New create new member of actor class
-func New(name string) (Person, error) {
-	names := strings.Split(name, "-")
-	if len(names) >= 2 {
-		p := Person{names}
-		return p, nil
+func New(input string, runes []string) (Person, error) {
+	var names, oldNames []string
+	if len(input) > 0 {
+		names = strings.Split(input, string(runes[len(runes)-1]))
 	}
-	names = strings.Split(names[0], "_")
-	if len(names) >= 2 {
-		p := Person{names}
-		return p, nil
+	for _, iRune := range runes {
+		oldNames = strings.Split(input, iRune)
+		if len(names) < len(oldNames) {
+			names = oldNames
+		}
 	}
-	names = strings.Split(names[0], ".")
-	if len(names) >= 2 {
-		p := Person{names}
-		return p, nil
-	}
-	p := Person{[]string{name}}
-	return p, errors.New("Name is shorter than expected")
+	p := Person{names}
+	return p, nil
 }
 
 // SaveToFile does what it says
 func SaveToFile(actorList []Person, filename string) {
-	file, _ := json.MarshalIndent(actorList, "", " ")
+	actresses := new(Actresses)
+	actresses.ListOfActresses = actorList
+	file, _ := json.MarshalIndent(actresses, "", " ")
 	ioutil.WriteFile(filename, file, 0755)
+	// comment comment comment
+}
+
+// ReadFromFile function
+func ReadFromFile(filename string) []Person {
+	file, err := ioutil.ReadFile(filename)
 }

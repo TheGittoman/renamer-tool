@@ -12,10 +12,11 @@ import (
 )
 
 type filterWords struct {
-	Words []string `json:"Words"`
+	Words   []string `json:"Words"`
+	Symbols []string `json:"Symbols"`
 }
 
-func getFilters() []string {
+func getFilters() filterWords {
 	words := new(filterWords)
 	file, err := ioutil.ReadFile("./data/filters.json")
 	if err != nil {
@@ -25,7 +26,7 @@ func getFilters() []string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return words.Words
+	return *words
 }
 
 func main() {
@@ -61,28 +62,50 @@ func main() {
 	}
 	//filters from json that are used to filter the results
 	filters := getFilters()
+	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 	actorList := []person.Person{}
 	found := false
 	// way to delete stuff more efficiently in this
 	// stage we have person object and we should filter it for incorrect instances
 	for _, v := range names {
-		p, _ := person.New(v)
+		p, _ := person.New(v, filters.Symbols)
 		// if there is less than two names and the name lenght is less than 2 letters
 		// or there is more than 4 names then skip
-		if ((len(p.Names) < 2 && len(p.Names[0]) <= 3) || len(p.Names) > 4) || len(p.Names[0]) > 15 {
+		// if ((len(p.Names) < 2 && len(p.Names[0]) <= 3) || len(p.Names) > 4) || len(p.Names[0]) > 15 {
+		// 	continue
+		// }
+		// if len(p.Names) == 1 && len(p.Names[0]) < 4 {
+		// 	continue
+		// }
+		// if len(p.Names) == 1 && len(p.Names[0]) > 15 {
+		// 	continue
+		// }
+		if len(p.Names) <= 1 {
 			continue
 		}
-		// go through filters and for each filter test all the names
-		for _, filter := range filters {
+		// // go through filters and for each filter test all the names
+		foundNumbers := 0
+		for _, filter := range filters.Words {
 			for _, name := range p.Names {
 				if strings.Contains(name, filter) {
 					found = true
+					break
+				}
+				for _, number := range numbers {
+					if strings.Contains(name, number) {
+						foundNumbers++
+						if foundNumbers > 4 {
+							found = true
+							break
+						}
+					}
 				}
 			}
 		}
 		if !found {
 			actorList = append(actorList, p)
 		}
+		foundNumbers = 0
 		found = false
 	}
 
