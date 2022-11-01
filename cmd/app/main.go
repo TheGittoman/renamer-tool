@@ -34,17 +34,12 @@ func main() {
 	maxLenght := 0
 	oldName := []string{}
 	actorList := []person.Person{}
-	err := filepath.Walk("C:/Users/Kone/4chan/PornstarList/www.freeones.com", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("C:/Users/Kone/4chan/PornstarList/", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
 		if info.IsDir() {
-			for _, v := range filters {
-				if strings.Contains(path, v) {
-					return nil
-				}
-			}
 			splitPath := strings.Split(path, "\\")
 			if maxLenght < len(splitPath) {
 				oldName = splitPath
@@ -63,12 +58,20 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	found := false
 	for _, v := range names {
-		p, err := person.New(v)
-		if err != nil {
-			fmt.Printf("p.Names: %v\n : %s\n", p.Names, err)
+		p, _ := person.New(v)
+		for _, v := range filters {
+			for _, v2 := range p.Names {
+				if strings.Contains(v2, v) {
+					found = true
+				}
+			}
 		}
-		actorList = append(actorList, p)
+		if !found {
+			actorList = append(actorList, p)
+		}
+		found = false
 	}
 	person.SaveToFile(actorList, "./data/actresses.json")
 	fmt.Printf("Operation successful: %d actresses added", len(actorList))
