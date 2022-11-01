@@ -24,6 +24,11 @@ func New(name string) (Person, error) {
 		p := Person{names}
 		return p, nil
 	}
+	names = strings.Split(names[0], ".")
+	if len(names) >= 2 {
+		p := Person{names}
+		return p, nil
+	}
 	p := Person{[]string{name}}
 	return p, errors.New("Name is shorter than expected")
 }
