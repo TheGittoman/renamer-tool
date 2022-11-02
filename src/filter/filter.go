@@ -2,6 +2,7 @@ package filter
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -45,17 +46,7 @@ func Result(names []string, conf *config.Config) []person.Person {
 	// stage we have person object and we should filter it for incorrect instances
 	for _, v := range names {
 		p, _ := person.New(v, filters.Symbols)
-		// if there is less than two names and the name lenght is less than 2 letters
-		// or there is more than 4 names then skip
-		// if ((len(p.Names) < 2 && len(p.Names[0]) <= 3) || len(p.Names) > 4) || len(p.Names[0]) > 15 {
-		// 	continue
-		// }
-		// if len(p.Names) == 1 && len(p.Names[0]) < 4 {
-		// 	continue
-		// }
-		// if len(p.Names) == 1 && len(p.Names[0]) > 15 {
-		// 	continue
-		// }
+		// check the lenght of the list
 		if len(p.Names) <= 1 {
 			continue
 		}
@@ -90,29 +81,34 @@ func Result(names []string, conf *config.Config) []person.Person {
 // WalkPath path that will be scrawled by the command
 // Takes config struct that included filedirs for commands
 func WalkPath(conf *config.Config) ([]string, error) {
-	oldNames := []string{}
 	names := []string{}
-	maxLenght := 0
+	pictures := make(map[string]string)
+	fileTypes := []string{"png", "jpg", "jpeg"}
 	err := filepath.Walk(conf.ScanFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		// split path /path/path/interesting-path with \\ filter
+		fileName := info.Name()
+		for _, fileType := range fileTypes {
+			if strings.Contains(fileName, fileType) {
+				file, err := ioutil.ReadFile(path)
+				if err != nil {
+					log.Println(err)
+				}
+				savePath := "./data/pictures/" + info.Name()
+				if _, err := os.Stat(savePath); errors.Is(err, os.ErrNotExist) {
+					err = ioutil.WriteFile(savePath, file, 755)
+					if err != nil {
+						log.Println(err)
+					}
+					pictures[info.Name()] = savePath
+				}
+			}
+		}
+		// get directory name
 		if info.IsDir() {
-			splitPath := strings.Split(path, "\\")
-			if maxLenght < len(splitPath) {
-				oldNames = splitPath
-				maxLenght = len(splitPath)
-				return nil
-			}
-			// if length of the path is same as lenght of the split path
-			// and temporary path not nil add last tip of the path to the list
-			if maxLenght == len(splitPath) && oldNames != nil {
-				names = append(names, oldNames[len(oldNames)-1])
-				oldNames = nil
-			}
-			names = append(names, splitPath[len(splitPath)-1])
+			names = append(names, fileName)
 		}
 		return nil
 	})

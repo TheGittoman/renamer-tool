@@ -1,2 +1,3 @@
 data/*.json
 !*default.json
+data/pictures
