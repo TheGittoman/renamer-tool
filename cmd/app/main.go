@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"renamer-tool/src/config"
 	"renamer-tool/src/person"
 	"strings"
 )
@@ -16,9 +17,9 @@ type filterWords struct {
 	Symbols []string `json:"Symbols"`
 }
 
-func getFilters() filterWords {
+func getFilters(c *config.Config) filterWords {
 	words := new(filterWords)
-	file, err := ioutil.ReadFile("./data/filters.json")
+	file, err := ioutil.ReadFile(c.FilterFolder)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,11 +31,12 @@ func getFilters() filterWords {
 }
 
 func main() {
+	conf := config.New()
 	names := []string{}
 	oldName := []string{}
 	maxLenght := 0
 
-	err := filepath.Walk("C:/Users/Kone/4chan/PornstarList/", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(conf.ScanFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -60,8 +62,18 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	actorList := filterResult(names, conf)
+	person.SaveToFile(actorList, conf.FilterFolder)
+	fmt.Printf("Operation successful: %d entries added", len(actorList))
+}
+
+func filterResult(names []string, c *config.Config) []person.Person {
 	//filters from json that are used to filter the results
-	filters := getFilters()
+	if len(names) == 0 {
+		log.Fatalln("names list is missing")
+	}
+	filters := getFilters(c)
 	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 	actorList := []person.Person{}
 	found := false
@@ -108,7 +120,5 @@ func main() {
 		foundNumbers = 0
 		found = false
 	}
-
-	person.SaveToFile(actorList, "./data/actresses.json")
-	fmt.Printf("Operation successful: %d actresses added", len(actorList))
+	return actorList
 }

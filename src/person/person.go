@@ -57,3 +57,15 @@ func ReadFromFile(filename string) *Actresses {
 	utility.CheckErrors(err)
 	return actresses
 }
+
+/*
+write to file from folder structure and try to delete trash results
+read from file and add all to actresses class
+search images with name including names in json result from the first step
+
+	trash-actressfirstname-actresslastname-trash.jpg > actressfirstname-actresslastname.jpg
+
+make new path and save /folder/<actress>/<actress>-01.jpg
+
+way to add to the json when running instead of deleting everything
+*/
