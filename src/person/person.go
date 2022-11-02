@@ -40,9 +40,9 @@ func New(input string, runes []string) (Person, error) {
 }
 
 // SaveToFile does what it says
-func SaveToFile(actorList []Person, filename string) {
+func SaveToFile(persons []Person, filename string) {
 	actresses := new(Actresses)
-	actresses.ListOfActresses = actorList
+	actresses.ListOfActresses = persons
 	file, _ := json.MarshalIndent(actresses, "", " ")
 	ioutil.WriteFile(filename, file, 0755)
 	// comment comment comment

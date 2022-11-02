@@ -2,8 +2,11 @@ package filter
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"renamer-tool/src/config"
 	"renamer-tool/src/person"
 	"strings"
@@ -35,7 +38,7 @@ func Result(names []string, conf *config.Config) []person.Person {
 	}
 	filters := getFilters(conf)
 	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
-	actorList := []person.Person{}
+	persons := []person.Person{}
 	found := false
 	// way to delete stuff more efficiently in this
 	// stage we have person object and we should filter it for incorrect instances
@@ -75,10 +78,41 @@ func Result(names []string, conf *config.Config) []person.Person {
 			}
 		}
 		if !found {
-			actorList = append(actorList, p)
+			persons = append(persons, p)
 		}
 		foundNumbers = 0
 		found = false
 	}
-	return actorList
+	return persons
+}
+
+// WalkPath path that will be scrawled by the command
+func WalkPath(conf *config.Config) ([]string, error) {
+	oldNames := []string{}
+	names := []string{}
+	maxLenght := 0
+	err := filepath.Walk(conf.ScanFolder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		// split path /path/path/interesting-path with \\ filter
+		if info.IsDir() {
+			splitPath := strings.Split(path, "\\")
+			if maxLenght < len(splitPath) {
+				oldNames = splitPath
+				maxLenght = len(splitPath)
+				return nil
+			}
+			// if length of the path is same as lenght of the split path
+			// and temporary path not nil add last tip of the path to the list
+			if maxLenght == len(splitPath) && oldNames != nil {
+				names = append(names, oldNames[len(oldNames)-1])
+				oldNames = nil
+			}
+			names = append(names, splitPath[len(splitPath)-1])
+		}
+		return nil
+	})
+	return names, err
 }
