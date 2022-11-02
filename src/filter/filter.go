@@ -87,6 +87,7 @@ func Result(names []string, conf *config.Config) []person.Person {
 }
 
 // WalkPath path that will be scrawled by the command
+// Takes config struct that included filedirs for commands
 func WalkPath(conf *config.Config) ([]string, error) {
 	oldNames := []string{}
 	names := []string{}
