@@ -36,6 +36,7 @@ func Result(names []string, conf *config.Config) []person.Person {
 	if len(names) == 0 {
 		log.Fatalln("names list is missing")
 	}
+	// getFilters from conf.FilterFolder
 	filters := getFilters(conf)
 	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 	persons := []person.Person{}

@@ -1,0 +1,5 @@
+{
+    "scanFolder": "./data",
+    "filterFolder": "./data/filters-default.json",
+    "saveFolderJson": "./data/data.json"
+}

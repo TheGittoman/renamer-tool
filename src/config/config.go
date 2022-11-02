@@ -17,6 +17,9 @@ func getConfig() *Config {
 	conf := new(Config)
 	file, err := ioutil.ReadFile("./data/config.json")
 	if err != nil {
+		file, err = ioutil.ReadFile("./data/config-default.json")
+	}
+	if err != nil {
 		log.Fatal(err)
 	}
 	err = json.Unmarshal(file, conf)

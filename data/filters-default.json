@@ -1,0 +1,18 @@
+{
+    "Words": [
+        "image",
+        "files",
+        "videos",
+        "photos",
+        "video",
+        "blog",
+        "photo",
+        "build"
+    ],
+    "Symbols": [
+        "-",
+        "_",
+        ".",
+        " "
+    ]
+}
