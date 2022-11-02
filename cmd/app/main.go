@@ -17,9 +17,9 @@ type filterWords struct {
 	Symbols []string `json:"Symbols"`
 }
 
-func getFilters(c *config.Config) filterWords {
+func getFilters(conf *config.Config) filterWords {
 	words := new(filterWords)
-	file, err := ioutil.ReadFile(c.FilterFolder)
+	file, err := ioutil.ReadFile(conf.FilterFolder)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,6 +36,7 @@ func main() {
 	oldName := []string{}
 	maxLenght := 0
 
+	fmt.Printf("F: %s \nS: %s\nSc: %s\n", conf.FilterFolder, conf.SaveFolder, conf.ScanFolder)
 	err := filepath.Walk(conf.ScanFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
@@ -64,16 +65,17 @@ func main() {
 	}
 
 	actorList := filterResult(names, conf)
-	person.SaveToFile(actorList, conf.FilterFolder)
+	person.SaveToFile(actorList, conf.SaveFolder)
 	fmt.Printf("Operation successful: %d entries added", len(actorList))
 }
 
-func filterResult(names []string, c *config.Config) []person.Person {
+func filterResult(names []string, conf *config.Config) []person.Person {
 	//filters from json that are used to filter the results
 	if len(names) == 0 {
 		log.Fatalln("names list is missing")
 	}
-	filters := getFilters(c)
+	fmt.Printf("F: %s \nS: %s\nSc: %s\n", conf.FilterFolder, conf.SaveFolder, conf.ScanFolder)
+	filters := getFilters(conf)
 	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 	actorList := []person.Person{}
 	found := false
