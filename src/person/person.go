@@ -3,8 +3,10 @@ package person
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"renamer-tool/src/config"
 	"renamer-tool/src/utility"
 	"strings"
 )
@@ -60,18 +62,55 @@ func ReadFromFile(filename string) *Entries {
 	return entries
 }
 
+// ReadNames returns all names of person divided by a symbol
+func (e *Person) ReadNames(symbol string) string {
+	if e == nil {
+		log.Fatal("ReadNames failes because person was nil")
+	}
+	fileName := ""
+	for index, name := range e.Names {
+		if index == 0 {
+			fileName += name
+			continue
+		}
+		fileName += symbol + name
+	}
+	return fileName
+}
+
 // Save and format the entries with picture paths
-func (e *Entries) Save() error {
+func (e *Entries) Save(conf *config.Config) error {
+	separator := "_"
 	found := false
 	count := 0
 	for _, actor := range e.Entries {
 		for fileName, path := range e.Paths {
 			for _, name := range actor.Names {
-
+				if !strings.Contains(fileName, name) {
+					found = false
+					break
+				}
+				found = true
+			}
+			if !found {
+				continue
+			}
+			count++
+			fmt.Println("Saving to file!")
+			saveDir := actor.ReadNames("_")
+			file, err := ioutil.ReadFile(path)
+			utility.CheckErrors(err)
+			if count > 1 {
+				err := ioutil.WriteFile("./data/tagged_pictures/"+saveDir+separator+fmt.Sprint(count)+".jpg", file, 755)
+				utility.CheckErrors(err)
+			} else {
+				err := ioutil.WriteFile("./data/tagged_pictures/"+saveDir+".jpg", file, 755)
+				utility.CheckErrors(err)
 			}
 		}
+		count = 0
 	}
-	count = 0
+	return nil
 }
 
 /*

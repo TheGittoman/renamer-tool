@@ -24,18 +24,7 @@ func main() {
 	if !runSearch {
 		fmt.Println("running without search")
 		entries := person.ReadFromFile(conf.SaveFolder)
-		for i := 0; i < 20; i++ {
-			fmt.Println(entries.Entries[i].Names)
-		}
-		count := 0
-		for name, path := range entries.Paths {
-			count++
-			if count == 20 {
-				break
-			}
-			fmt.Println(name + "\n" + path)
-		}
-		err := entries.Save()
+		err := entries.Save(conf)
 		utility.CheckErrors(err)
 	}
 }
