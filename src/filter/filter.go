@@ -80,29 +80,29 @@ func Result(names []string, conf *config.Config) []person.Person {
 
 // WalkPath path that will be scrawled by the command
 // Takes config struct that included filedirs for commands
-func WalkPath(conf *config.Config) ([]string, error) {
+func WalkPath(conf *config.Config) ([]string, map[string]string, error) {
 	names := []string{}
 	pictures := make(map[string]string)
-	fileTypes := []string{"png", "jpg", "jpeg"}
+	fileTypes := []string{".png", ".jpg", ".jpeg"}
 	err := filepath.Walk(conf.ScanFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		fileName := info.Name()
+		fileName := strings.ToLower(info.Name())
 		for _, fileType := range fileTypes {
 			if strings.Contains(fileName, fileType) {
 				file, err := ioutil.ReadFile(path)
 				if err != nil {
 					log.Println(err)
 				}
-				savePath := "./data/pictures/" + info.Name()
+				savePath := "./data/pictures/" + fileName
 				if _, err := os.Stat(savePath); errors.Is(err, os.ErrNotExist) {
 					err = ioutil.WriteFile(savePath, file, 755)
 					if err != nil {
 						log.Println(err)
 					}
-					pictures[info.Name()] = savePath
+					pictures[fileName] = savePath
 				}
 			}
 		}
@@ -112,5 +112,8 @@ func WalkPath(conf *config.Config) ([]string, error) {
 		}
 		return nil
 	})
-	return names, err
+	return names, pictures, err
 }
+
+// kuvien ja nimien vertailu
+// found = true if not found turn false and go to next picture

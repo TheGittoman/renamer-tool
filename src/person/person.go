@@ -16,7 +16,8 @@ type Person struct {
 
 // Entries class with all person members
 type Entries struct {
-	Entries []Person `json:"Entries"`
+	Entries []Person          `json:"Entries"`
+	Paths   map[string]string `json:"Paths"`
 }
 
 // New create new member of actor class
@@ -40,9 +41,10 @@ func New(input string, runes []string) (Person, error) {
 }
 
 // SaveToFile does what it says
-func SaveToFile(persons []Person, filename string) {
+func SaveToFile(persons []Person, paths map[string]string, filename string) {
 	entries := new(Entries)
 	entries.Entries = persons
+	entries.Paths = paths
 	file, _ := json.MarshalIndent(entries, "", " ")
 	ioutil.WriteFile(filename, file, 0755)
 	// comment comment comment
@@ -58,9 +60,21 @@ func ReadFromFile(filename string) *Entries {
 	return entries
 }
 
+// Save and format the entries with picture paths
+func (e *Entries) Save() error {
+	found := false
+	count := 0
+	for _, actor := range e.Entries {
+		for fileName, path := range e.Paths {
+			for _, name := range actor.Names {
+
+			}
+		}
+	}
+	count = 0
+}
+
 /*
-write to file from folder structure and try to delete trash results
-read from file and add all to entries class
 search images with name including names in json result from the first step
 
 	trash-actressfirstname-actresslastname-trash.jpg > actressfirstname-actresslastname.jpg
