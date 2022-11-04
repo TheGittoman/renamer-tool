@@ -2,3 +2,4 @@ data/*.json
 !*default.json
 data/pictures
 data/tagged_pictures
+data/tagged_pictures*

@@ -9,11 +9,14 @@ import (
 	"renamer-tool/src/config"
 	"renamer-tool/src/utility"
 	"strings"
+
+	"github.com/Kagami/go-face"
 )
 
 // Person class
 type Person struct {
 	Names []string `json:"Names"`
+	// Identifiers []face.Face `json:"Identifiers`
 }
 
 // Entries class with all person members
@@ -95,6 +98,10 @@ func (e *Entries) Save(conf *config.Config) error {
 			if !found {
 				continue
 			}
+			if !FindFace(path) {
+				fmt.Println("can't find a face")
+				continue
+			}
 			count++
 			fmt.Println("Saving to file!")
 			saveDir := actor.ReadNames("_")
@@ -112,6 +119,46 @@ func (e *Entries) Save(conf *config.Config) error {
 	}
 	return nil
 }
+
+// FindFace returns true if given image/path image includes a face
+func FindFace(path string) bool {
+	rec, err := face.NewRecognizer("F:/Git/Coding/dlib-models")
+	if err != nil {
+		log.Fatalf("Can't init face recognizer: %v", err)
+	}
+	defer rec.Close()
+	fmt.Println("Scanning faces")
+	faces, err := rec.RecognizeFile(path)
+	if err != nil {
+		return false
+	}
+	if len(faces) > 0 {
+		return true
+	}
+	return false
+}
+
+// FindFace returns true if given image/path image includes a face
+// func FindFace(path *string) bool {
+// 	rec := recognizer.Recognizer{}
+// 	err := rec.Init("F:/Git/Coding/dlib-models")
+// 	if err != nil {
+// 		log.Fatal("can't find dlib-models")
+// 		return false
+// 	}
+// 	rec.Tolerance = 0.4
+// 	rec.UseGray = true
+// 	rec.UseCNN = false
+// 	defer rec.Close()
+
+// 	fmt.Println("scanning for faces...")
+// 	_, err = rec.RecognizeMultiples(*path)
+// 	if err != nil {
+// 		return false
+// 	}
+
+// 	return true
+// }
 
 /*
 search images with name including names in json result from the first step
